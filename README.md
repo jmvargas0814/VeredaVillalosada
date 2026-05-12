@@ -225,4 +225,3 @@ Los meses se generan dinámicamente según:
 
 Desde la raíz del proyecto:
 
-Windows:
