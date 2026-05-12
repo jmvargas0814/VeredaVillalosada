@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Administrativo - Villalosada</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .header {
+            background-color: #212529;
+            color: white;
+            padding: 15px;
+        }
+
+        .footer {
+            background-color: #212529;
+            color: white;
+            padding: 10px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+
+        .dashboard-container {
+            margin-top: 120px;
+        }
+
+        .dashboard-card {
+            height: 140px; /* mitad tamaño */
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dashboard-card:hover {
+            transform: scale(1.05);
+            background-color: #f1f1f1;
+        }
+
+        .dashboard-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- HEADER IDENTIDAD -->
+<div class="header d-flex justify-content-between align-items-center">
+    <h4>Vereda Villalosada - Sistema Administrativo</h4>
+
+    <div>
+        <span th:text="${nombreCompleto}"></span>
+        |
+        <form th:action="@{/logout}" method="post" class="d-inline">
+            <button type="submit"
+                    class="btn btn-link text-white text-decoration-none p-0">
+                Cerrar sesión
+            </button>
+        </form>
+
+    </div>
+</div>
+
+<!-- CONTENIDO CENTRAL -->
+<div class="container dashboard-container">
+
+    <div class="row justify-content-center text-center">
+
+        <!-- CREAR USUARIO -->
+        <div class="col-md-4 mb-4"
+             sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/usuarios/crear}" class="text-decoration-none">
+                <div class="card dashboard-card shadow d-flex flex-column justify-content-center align-items-center">
+                    <i class="bi bi-person-plus-fill dashboard-icon text-primary"></i>
+                    <h6 class="text-dark">Crear Usuario</h6>
+                </div>
+            </a>
+        </div>
+
+        <!-- CONSULTAR USUARIOS -->
+        <div class="col-md-4 mb-4"
+             sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/usuarios/consultar}" class="text-decoration-none">
+                <div class="card dashboard-card shadow d-flex flex-column justify-content-center align-items-center">
+                    <i class="bi bi-search dashboard-icon text-success"></i>
+                    <h6 class="text-dark">Consultar Usuarios</h6>
+                </div>
+            </a>
+        </div>
+
+        <!-- VALIDAR PAGOS USER -->
+        <div class="col-md-4 mb-4"
+             sec:authorize="hasRole('USER')">
+            <a th:href="@{/usuarios/mis-pagos/excel}"
+               class="text-decoration-none">
+                <div class="card dashboard-card shadow d-flex flex-column justify-content-center align-items-center">
+                    <i class="bi bi-file-earmark-excel dashboard-icon text-success"></i>
+                    <h6 class="text-dark">Validar Pagos</h6>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+
+</div>
+
+<!-- FOOTER IDENTIDAD -->
+<div class="footer text-center">
+    © 2026 Vereda Villalosada - Sistema Administrativo
+</div>
+
+</body>
+</html>

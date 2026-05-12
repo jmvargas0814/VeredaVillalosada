@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Admin - Control de Pagos</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+
+    <style>
+        body { background-color: #f8f9fa; }
+
+        .badge-admin {
+            background-color: #212529;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+<div class="container-fluid p-4">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <span class="badge-admin">ADMIN</span>
+            Control General de Socios
+        </h2>
+        <div class="text-muted">
+            Vereda Villalosada - Gestión
+            <span th:text="${anioActual}"></span>
+        </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+
+            <form th:action="@{/usuarios/consultar}" method="get">
+                <div class="row g-3">
+
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">
+                            Buscar por Documento
+                        </label>
+                        <input type="text"
+                               name="documento"
+                               th:value="${param.documento}"
+                               class="form-control"
+                               placeholder="Ingrese cédula...">
+                    </div>
+
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit"
+                                class="btn btn-dark btn-sm w-100">
+                            <i class="bi bi-search"></i> Consultar
+                        </button>
+                    </div>
+
+                    <div class="col-md-3 d-flex align-items-end">
+                        <a th:href="@{/usuarios/exportar}"
+                           class="btn btn-outline-success btn-sm w-100">
+                            <i class="bi bi-file-earmark-excel"></i> Excel
+                        </a>
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        <a th:href="@{/admin}"
+                           class="btn btn-outline-secondary btn-sm w-100">
+                            <i class="bi bi-arrow-left"></i> Volver
+                        </a>
+                    </div>
+
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- TABLA PRINCIPAL -->
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+
+            <table class="table table-hover table-bordered mb-0 align-middle">
+
+                <thead class="table-dark">
+                <tr class="text-center">
+                    <th>Código</th>
+                    <th>Socio</th>
+                    <th>Documento</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                    <th>Estado</th>
+                    <th>Pagar</th>
+                    <th>Pagos</th>
+                    <th>Acción</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                <tr th:each="usuario : ${usuarios}">
+
+                    <td class="text-center"
+                        th:text="${#numbers.formatInteger(usuario.codigoUsuario,6)}">
+                    </td>
+
+                    <td>
+                        <strong th:text="${usuario.nombres + ' ' + usuario.apellidos}"></strong>
+                    </td>
+
+                    <td th:text="${usuario.numeroIdentificacion}"></td>
+                    <td th:text="${usuario.correo}"></td>
+                    <td th:text="${usuario.telefono}"></td>
+
+                    <td class="text-center">
+                        <span th:if="${usuario.estado}"
+                              class="badge bg-success">
+                            Activo
+                        </span>
+                        <span th:if="${!usuario.estado}"
+                              class="badge bg-danger">
+                            Inactivo
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-success"
+                                data-bs-toggle="modal"
+                                th:data-bs-target="'#modalPagar' + ${usuario.id}">
+                            <i class="bi bi-cash-coin"></i>
+                        </button>
+                    </td>
+
+                    <!-- BOTÓN VER PAGOS -->
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-outline-info"
+                                data-bs-toggle="modal"
+                                th:data-bs-target="'#modalPagos' + ${usuario.id}">
+                            <i class="bi bi-calendar-check"></i>
+                        </button>
+                    </td>
+
+                    <!-- BOTÓN EDITAR -->
+                    <td class="text-center">
+                        <a th:href="@{/usuarios/editar/{id}(id=${usuario.id})}"
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                    </td>
+
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(usuarios)}">
+                    <td colspan="8" class="text-center">
+                        No hay usuarios registrados
+                    </td>
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- MODAL VER PAGOS -->
+<!-- ========================= -->
+
+<div th:each="usuario : ${usuarios}">
+
+    <div class="modal fade"
+         th:id="'modalPagos' + ${usuario.id}"
+         tabindex="-1">
+
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title">
+                        Pagos -
+                        <span th:text="${usuario.nombres + ' ' + usuario.apellidos}"></span>
+                    </h5>
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal">
+                    </button>
+                </div>
+
+                <div class="modal-body text-center">
+
+                    <div class="row g-3">
+
+                        <div class="col-md-3"
+                             th:each="pago : ${usuario.pagos}">
+
+                            <!-- ADMIN puede toggle -->
+                            <div sec:authorize="hasRole('ADMIN')">
+
+                                <form th:action="@{/usuarios/toggle-pago}"
+                                      method="post">
+
+                                    <input type="hidden"
+                                           name="pagoId"
+                                           th:value="${pago.id}" />
+
+                                    <button type="submit"
+                                            class="btn w-100"
+                                            th:classappend="${pago.pagado} ? 'btn-success' : 'btn-danger'">
+
+                                        <span th:text="${T(java.time.Month)
+                                            .of(pago.mes)
+                                            .name()
+                                            .substring(0,3)}
+                                            + ' - ' + ${pago.anio}">
+                                        </span>
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                            <!-- USER solo visualiza -->
+                            <div sec:authorize="hasRole('USER')">
+
+                                <div class="btn w-100"
+                                     th:classappend="${pago.pagado} ? 'btn-success' : 'btn-danger'">
+
+                                    <span th:text="${T(java.time.Month)
+                                            .of(pago.mes)
+                                            .name()
+                                            .substring(0,3)}
+                                            + ' - ' + ${pago.anio}">
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+<!-- ========================= -->
+<!-- MODAL PAGAR MES -->
+<!-- ========================= -->
+
+<div th:each="usuario : ${usuarios}">
+
+    <div class="modal fade"
+         th:id="'modalPagar' + ${usuario.id}"
+         tabindex="-1">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        Registrar Pago -
+                        <span th:text="${usuario.nombres + ' ' + usuario.apellidos}"></span>
+                    </h5>
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <form th:action="@{/usuarios/pagar-mes}"
+                          method="post">
+
+                        <div class="mb-3">
+                            <label class="form-label">Seleccionar Mes Pendiente</label>
+
+                            <select name="pagoId"
+                                    class="form-select"
+                                    required>
+
+                                <option value="">-- Seleccione --</option>
+
+                                <option th:each="pago : ${usuario.pagos}"
+                                        th:if="${!pago.pagado}"
+                                        th:value="${pago.id}"
+                                        th:text="${T(java.time.Month)
+                                            .of(pago.mes)
+                                            .name()
+                                            .substring(0,3)}
+                                            + ' - ' + ${pago.anio}">
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-success w-100">
+                            Confirmar Pago
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
