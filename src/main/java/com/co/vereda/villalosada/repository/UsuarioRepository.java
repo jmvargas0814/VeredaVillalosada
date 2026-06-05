@@ -17,4 +17,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
   Optional<Usuario> findByNumeroIdentificacion(String numeroIdentificacion);
 
   List<Usuario> findByRolNombreNot(String nombreRol);
+
+  List<Usuario> findByNumeroIdentificacionContainingAndRolNombreNot(
+          String documento,
+          String nombreRol);
 }
