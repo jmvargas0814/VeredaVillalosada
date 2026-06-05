@@ -238,4 +238,17 @@ public class UsuarioController {
 
     return "redirect:/usuarios/consultar";
   }
+
+  @GetMapping("/buscar")
+  @ResponseBody
+  public List<Usuario> buscarUsuarios(@RequestParam String documento) {
+
+    if (documento == null || documento.trim().isEmpty()) {
+      return usuarioRepository.findUsuariosNoAdmin();
+    }
+
+    return usuarioRepository
+            .findByNumeroIdentificacionContainingAndRolNombreNot(documento, "ADMIN");
+  }
+
 }

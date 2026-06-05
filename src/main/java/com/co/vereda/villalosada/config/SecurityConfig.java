@@ -11,9 +11,12 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
   private final CustomUserDetailsService userDetailsService;
+  private final CustomLoginSuccessHandler customLoginSuccessHandler;
 
-  public SecurityConfig(CustomUserDetailsService userDetailsService) {
+
+  public SecurityConfig(CustomUserDetailsService userDetailsService, CustomLoginSuccessHandler customLoginSuccessHandler) {
     this.userDetailsService = userDetailsService;
+      this.customLoginSuccessHandler = customLoginSuccessHandler;
   }
 
   @Bean
@@ -52,7 +55,10 @@ public class SecurityConfig {
                     .authenticated())
 
         //  login personalizado
-        .formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/admin", true).permitAll())
+        .formLogin(form -> form
+                .loginPage("/login")
+                .successHandler(customLoginSuccessHandler)
+                .permitAll())
 
         // legeo seguro por post
         .logout(

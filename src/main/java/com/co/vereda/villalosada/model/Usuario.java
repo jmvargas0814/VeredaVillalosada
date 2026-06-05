@@ -1,5 +1,6 @@
 package com.co.vereda.villalosada.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -49,6 +50,7 @@ public class Usuario {
   @JoinColumn(name = "rol_id")
   private Role rol;
 
+  @JsonIgnore
   @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
   private List<PagoMensual> pagos;
 }
